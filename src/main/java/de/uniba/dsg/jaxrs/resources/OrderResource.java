@@ -6,7 +6,9 @@ import de.uniba.dsg.jaxrs.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Path("/orders")
@@ -15,21 +17,43 @@ import java.util.Optional;
 public class OrderResource {
 
     private static final DB database = new DB();  // In-memory DB
-
     @GET
     @Path("/{id}")
-    public Response getOrderById(@PathParam("id") int id) {
-        Optional<Order> order = database.getOrders().stream()
-                .filter(o -> o.getId() == id)
+    public Response getOrderById(@PathParam("id") int id, @Context UriInfo uriInfo) {
+        Optional<Order> match = database.getOrders().stream()
+                .filter(o -> o.getOrderId() == id)
                 .findFirst();
 
-        if (order.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Order not found").build();
+        if (match.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        return Response.ok(order.get()).build();
+        Order order = match.get();
+        Map<String, String> links = new HashMap<>();
+        String baseUri = uriInfo.getBaseUriBuilder().path(OrderResource.class).path(Integer.toString(id)).build().toString();
+        links.put("self", baseUri);
+        links.put("cancel", baseUri);  // or /cancel if you add that route
+        links.put("update", baseUri);
+        order.setLinks(links);
+
+        return Response.ok(order).build();
     }
+
+
+//    @GET
+//    @Path("/{id}")
+//    public Response getOrderById(@PathParam("id") int id) {
+//        Optional<Order> order = database.getOrders().stream()
+//                .filter(o -> o.getId() == id)
+//                .findFirst();
+//
+//        if (order.isEmpty()) {
+//            return Response.status(Response.Status.NOT_FOUND)
+//                    .entity("Order not found").build();
+//        }
+//
+//        return Response.ok(order.get()).build();
+//    }
 
     @POST
     public Response submitOrder(Order order) {

@@ -1,6 +1,7 @@
 package de.uniba.dsg.jaxrs.model;
 
 import java.util.List;
+import java.util.Map;
 
 public class Order {
 
@@ -8,6 +9,7 @@ public class Order {
     private List<OrderItem> positions;
     private double price;
     private OrderStatus status;
+    private Map<String, String> links;
 
     public Order(int orderId, List<OrderItem> positions, double price, OrderStatus status) {
         this.orderId = orderId;
@@ -67,6 +69,16 @@ public class Order {
         this.price = price;
     }
 
+
+    public Map<String, String> getLinks() {
+        return links;
+    }
+
+    public void setLinks(Map<String, String> links) {
+        this.links = links;
+    }
+
+
     @Override
     public String toString() {
         return "Order{" +
@@ -76,4 +88,5 @@ public class Order {
                 ", status=" + status +
                 '}';
     }
+
 }

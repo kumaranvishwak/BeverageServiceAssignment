@@ -6,6 +6,7 @@ import de.uniba.dsg.jaxrs.model.Bottle;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,9 @@ public class BeverageResource {
     @GET
     public Response getAllBottles(
             @QueryParam("minPrice") Double minPrice,
-            @QueryParam("maxPrice") Double maxPrice
+            @QueryParam("maxPrice") Double maxPrice,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("limit") @DefaultValue("10") int limit
     ) {
         List<Bottle> bottles = database.getBottles();
 
@@ -34,8 +37,14 @@ public class BeverageResource {
                     .filter(b -> b.getPrice() <= maxPrice)
                     .collect(Collectors.toList());
         }
+        int from = (page - 1) * limit;
+        int to = Math.min(from + limit, bottles.size());
+        if (from > bottles.size()) {
+            return Response.ok(Collections.emptyList()).build();
+        }
 
-        return Response.ok(bottles).build();
+        return Response.ok(bottles.subList(from, to)).build();
+        //return Response.ok(bottles).build();
     }
 
     @GET
