@@ -1,0 +1,38 @@
+meta {
+  name: Submit Order
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/orders
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "items": [
+      {
+        "id": 1,
+        "beverage": {
+          "id": 1,
+          "name": "Pils",
+          "volume": 0.5,
+          "isAlcoholic": true,
+          "alcoholPercentage": 4.8,
+          "price": 0.79,
+          "supplier": "Keesmann",
+          "quantity": 20
+        },
+        "quantity": 2
+      }
+    ]
+  }
+  
+}

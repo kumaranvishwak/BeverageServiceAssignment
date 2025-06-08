@@ -1,0 +1,177 @@
+openapi: "3.0.3"
+info:
+  title: Beverage Store API
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /beverages:
+    get:
+      summary: Get all bottles (optionally filter by price)
+      parameters:
+        - name: minPrice
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of bottles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bottle"
+
+  /orders:
+    post:
+      summary: Submit a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        '201':
+          description: Created order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}:
+    get:
+      summary: Get order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        '404':
+          description: Not found
+    put:
+      summary: Update an order (if not processed)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        '200':
+          description: Updated
+        '403':
+          description: Order already processed
+    delete:
+      summary: Cancel an order (if not processed)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          description: Already processed
+
+  /admin/orders/{id}/process:
+    post:
+      summary: Mark an order as processed
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Marked as processed
+        '409':
+          description: Already processed
+
+components:
+  schemas:
+    Bottle:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        volume:
+          type: number
+        isAlcoholic:
+          type: boolean
+        alcoholPercentage:
+          type: number
+        price:
+          type: number
+        supplier:
+          type: string
+        quantity:
+          type: integer
+
+    Crate:
+      type: object
+      properties:
+        id:
+          type: integer
+        bottle:
+          $ref: "#/components/schemas/Bottle"
+        noOfBottles:
+          type: integer
+        price:
+          type: number
+        quantity:
+          type: integer
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        beverage:
+          oneOf:
+            - $ref: "#/components/schemas/Bottle"
+            - $ref: "#/components/schemas/Crate"
+        quantity:
+          type: integer
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        totalPrice:
+          type: number
+        status:
+          type: string
+          enum: [SUBMITTED, PROCESSED]

@@ -1,0 +1,11 @@
+meta {
+  name: Process Order
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/admin/orders/1/process
+  body: none
+  auth: inherit
+}

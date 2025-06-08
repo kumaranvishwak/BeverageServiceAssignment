@@ -1,0 +1,30 @@
+meta {
+  name: Add Bottle
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/admin/bottles
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "id": 0,
+    "name": "Test Bottle",
+    "volume": 1.0,
+    "isAlcoholic": false,
+    "alcoholPercentage": 0.0,
+    "price": 2.5,
+    "supplier": "TestSupplier",
+    "quantity": 10
+  }
+  
+}
